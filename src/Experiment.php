@@ -90,7 +90,7 @@ class Experiment {
         } elseif (isset($config['storage'])) {
             throw new InvalidArgumentException('storage needs to be an instance of StorageInterface');
         } else {
-            $this->storage = new Cookie();
+            $this->storage = new Cookie($config['cookieExpiry'] ?? null);
         }
 
         if (isset($config['filter']) && $config['filter'] instanceof FilterInterface) {
@@ -116,11 +116,10 @@ class Experiment {
      * Forces the activation of the given variation name.
      *
      * @param string $variationName
-     * @param integer $cookieExpiry When the cookie should expire (in seconds), defaults to 2 years
      */
-    public function forceVariationName($variationName, $cookieExpiry = 63072000)
+    public function forceVariationName($variationName)
     {
-        $this->storage->set('experiment', $this->name, $variationName, $cookieExpiry);
+        $this->storage->set('experiment', $this->name, $variationName);
     }
 
     /**
@@ -143,11 +142,9 @@ class Experiment {
      * will be randomly chosen unless it was forced by {@link forceVariationName()}. On all subsequent requests
      * it will reuse the variation that was activated on the first request.
      *
-     * @param integer $cookieExpiry When the cookie should expire (in seconds), defaults to 2 years
-     *
      * @return VariationInterface|null
      */
-    public function getActivatedVariation($cookieExpiry = 63072000)
+    public function getActivatedVariation()
     {
         if (!$this->filter->shouldTrigger()) {
             return self::DO_NOT_TRIGGER;
@@ -162,7 +159,7 @@ class Experiment {
         $variation = $this->variations->selectRandomVariation();
 
         if ($variation) {
-            $this->forceVariationName($variation->getName(), $cookieExpiry);
+            $this->forceVariationName($variation->getName());
 
             return $variation;
         }
