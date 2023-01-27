@@ -32,7 +32,15 @@ class Cookie implements StorageInterface {
         }
     }
 
-    public function set($namespace, $key, $value)
+    /**
+     * Sets the cookie used for our experiment, with the specified value
+     *
+     * @param string $namespace First half of the cookie name
+     * @param string $key Second half of the cookie name
+     * @param string $value Value we intend to set in the cookie
+     * @param integer $expiry When the cookie should expire (in seconds), defaults to 2 years
+     */
+    public function set($namespace, $key, $value, $expiry = 63072000)
     {
         $name = $this->toName($namespace, $key);
         self::$data[$name] = $value;
@@ -40,7 +48,7 @@ class Cookie implements StorageInterface {
         if (!headers_sent()) {
             // we do not throw an exception for now when headers already sent to not break the application
             // but could do later to make users aware there is an error
-            setcookie($name, $value, time() + (86400 * 365 * 2), $path = '/', "", false, $httpOnly = true);
+            setcookie($name, $value, time() + $expiry, $path = '/', "", false, $httpOnly = true);
         }
     }
 

@@ -116,10 +116,11 @@ class Experiment {
      * Forces the activation of the given variation name.
      *
      * @param string $variationName
+     * @param integer $cookieExpiry When the cookie should expire (in seconds), defaults to 2 years
      */
-    public function forceVariationName($variationName)
+    public function forceVariationName($variationName, $cookieExpiry = 63072000)
     {
-        $this->storage->set('experiment', $this->name, $variationName);
+        $this->storage->set('experiment', $this->name, $variationName, $cookieExpiry);
     }
 
     /**
@@ -142,9 +143,11 @@ class Experiment {
      * will be randomly chosen unless it was forced by {@link forceVariationName()}. On all subsequent requests
      * it will reuse the variation that was activated on the first request.
      *
+     * @param integer $cookieExpiry When the cookie should expire (in seconds), defaults to 2 years
+     *
      * @return VariationInterface|null
      */
-    public function getActivatedVariation()
+    public function getActivatedVariation($cookieExpiry = 63072000)
     {
         if (!$this->filter->shouldTrigger()) {
             return self::DO_NOT_TRIGGER;
@@ -159,7 +162,7 @@ class Experiment {
         $variation = $this->variations->selectRandomVariation();
 
         if ($variation) {
-            $this->forceVariationName($variation->getName());
+            $this->forceVariationName($variation->getName(), $cookieExpiry);
 
             return $variation;
         }

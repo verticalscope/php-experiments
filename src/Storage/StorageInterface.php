@@ -22,6 +22,6 @@ interface StorageInterface {
      * @param string $key
      * @param string|int $value
      */
-    public function set($namespace, $key, $value);
+    public function set($namespace, $key, $value, $expiry = null);
 
 }
