@@ -89,8 +89,10 @@ class Experiment {
             $this->storage = $config['storage'];
         } elseif (isset($config['storage'])) {
             throw new InvalidArgumentException('storage needs to be an instance of StorageInterface');
+        } elseif (isset($config['cookieExpiry'])) {
+            $this->storage = new Cookie($config['cookieExpiry']);
         } else {
-            $this->storage = new Cookie($config['cookieExpiry'] ?? null);
+            $this->storage = new Cookie();
         }
 
         if (isset($config['filter']) && $config['filter'] instanceof FilterInterface) {

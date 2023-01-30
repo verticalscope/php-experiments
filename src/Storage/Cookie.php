@@ -55,7 +55,10 @@ class Cookie implements StorageInterface {
         if (!headers_sent()) {
             // we do not throw an exception for now when headers already sent to not break the application
             // but could do later to make users aware there is an error
-            setcookie($name, $value, time() + $this->cookieExpiry, $path = '/', "", false, $httpOnly = true);
+            // 0 = expire after session
+            // negative value = force expiration
+            $expireTime = $this->cookieExpiry == 0 ? 0 : time() + $this->cookieExpiry;
+            setcookie($name, $value, $expireTime, $path = '/', "", false, $httpOnly = true);
         }
     }
 
