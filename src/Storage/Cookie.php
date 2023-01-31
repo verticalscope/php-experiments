@@ -19,6 +19,21 @@ class Cookie implements StorageInterface {
      */
     private static $data = [];
 
+    /**
+     * When the cookie should expire (in seconds), defaults to 2 years
+     * @var integer
+     */
+    private $cookieExpiry = 63072000;
+
+    /**
+     * Constructor
+     * @param integer $expiry When the cookie should expire (in seconds), defaults to 2 years
+     */
+    public function __construct($cookieExpiry = 63072000)
+    {
+        $this->cookieExpiry = $cookieExpiry;
+    }
+
     public function get($namespace, $key)
     {
         $name = $this->toName($namespace, $key);
@@ -40,7 +55,10 @@ class Cookie implements StorageInterface {
         if (!headers_sent()) {
             // we do not throw an exception for now when headers already sent to not break the application
             // but could do later to make users aware there is an error
-            setcookie($name, $value, time() + (86400 * 365 * 2), $path = '/', "", false, $httpOnly = true);
+            // 0 = expire after session
+            // negative value = force expiration
+            $expireTime = $this->cookieExpiry == 0 ? 0 : time() + $this->cookieExpiry;
+            setcookie($name, $value, $expireTime, $path = '/', "", false, $httpOnly = true);
         }
     }
 
